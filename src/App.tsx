@@ -263,7 +263,7 @@ export default function App() {
               className="w-64 h-64 md:w-80 md:h-80 bg-slate-800 rounded-[3rem] shadow-2xl flex flex-col items-center justify-center border-4 border-slate-700 relative"
             >
               <span className="text-9xl md:text-[10rem] leading-none mb-4 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                {letterMap[currentLetter][0]}
+                {currentLetter && letterMap[currentLetter] ? letterMap[currentLetter][0] : "❓"}
               </span>
               <div className="absolute -bottom-6 bg-white text-slate-900 px-8 py-3 rounded-2xl shadow-2xl">
                 <span className="text-3xl font-black tracking-widest uppercase">PRESS {currentLetter}</span>
