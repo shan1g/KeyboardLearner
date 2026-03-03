@@ -56,6 +56,7 @@ export default function App() {
   const [currentLetter, setCurrentLetter] = useState<string>('');
   const [score, setScore] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isAutoSmash, setIsAutoSmash] = useState(false);
   const [smashItems, setSmashItems] = useState<SmashItem[]>([]);
   const [bgColor, setBgColor] = useState('#0f172a'); // Dark Slate 900
   const containerRef = useRef<HTMLDivElement>(null);
@@ -100,7 +101,7 @@ export default function App() {
       const emojis = letterMap[letter];
       const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
       const newItem: SmashItem = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         emoji: randomEmoji,
         x: Math.random() * 80 + 10, // 10% to 90%
         y: Math.random() * 80 + 10,
@@ -114,6 +115,23 @@ export default function App() {
       }, 2000);
     }
   }, []);
+
+  const triggerRandomSmash = useCallback(() => {
+    const allKeys = Object.keys(letterMap);
+    const randomKey = allKeys[Math.floor(Math.random() * allKeys.length)];
+    handleSmash(randomKey);
+  }, [handleSmash]);
+
+  // Auto-Smash Logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isAutoSmash && mode === 'smash') {
+      interval = setInterval(() => {
+        triggerRandomSmash();
+      }, 600);
+    }
+    return () => clearInterval(interval);
+  }, [isAutoSmash, mode, triggerRandomSmash]);
 
   const handleLearn = useCallback((key: string) => {
     const pressed = key.toUpperCase();
@@ -225,16 +243,37 @@ export default function App() {
       </div>
 
       {/* Fullscreen Toggle */}
-      <button
-        onClick={toggleFullscreen}
-        className="fixed top-8 right-8 z-50 p-3 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 shadow-xl text-slate-300 hover:text-white transition-all"
-        title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
-      >
-        {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
-      </button>
+      <div className="fixed top-8 right-8 z-50 flex gap-2">
+        {mode === 'smash' && (
+          <button
+            onClick={() => setIsAutoSmash(!isAutoSmash)}
+            className={`p-3 backdrop-blur-md rounded-2xl border shadow-xl transition-all flex items-center gap-2 font-bold text-xs ${
+              isAutoSmash 
+                ? 'bg-yellow-400 border-yellow-500 text-slate-900 scale-105' 
+                : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:text-white'
+            }`}
+            title="Auto Smash"
+          >
+            <Zap className={`w-5 h-5 ${isAutoSmash ? 'fill-slate-900' : ''}`} />
+            {isAutoSmash ? "AUTO ON" : "AUTO OFF"}
+          </button>
+        )}
+        <button
+          onClick={toggleFullscreen}
+          className="p-3 bg-slate-800/50 backdrop-blur-md rounded-2xl border border-slate-700 shadow-xl text-slate-300 hover:text-white transition-all"
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
+        </button>
+      </div>
 
       {/* Main Game Area */}
-      <div className="relative w-full h-full flex items-center justify-center">
+      <div 
+        className="relative w-full h-full flex items-center justify-center cursor-pointer"
+        onClick={() => {
+          if (mode === 'smash') triggerRandomSmash();
+        }}
+      >
         {mode === 'smash' ? (
           <div className="w-full h-screen relative">
             {smashItems.map(item => (
@@ -291,9 +330,9 @@ export default function App() {
       </div>
 
       {/* Footer Instructions */}
-      <div className="fixed bottom-8 text-slate-500 text-sm font-medium tracking-wide">
+      <div className="fixed bottom-8 text-slate-500 text-sm font-medium tracking-wide pointer-events-none">
         {mode === 'smash' 
-          ? "Tap any letter or SPACE on your keyboard to see magic happen!" 
+          ? "Tap the screen or press any key to see magic happen!" 
           : "Can you find the letter on your keyboard?"}
       </div>
     </div>
