@@ -4,7 +4,7 @@
 
 # Run and deploy your AI Studio app
 
-Brain fart, son keeps jumping on my lap and smashing my keyboard, figured might as well learn from it
+Brain fart, son keeps jumping on my lap and smashing my keyboard, figured might as well learn from it.
 
 ## Run Locally
 
