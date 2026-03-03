@@ -128,7 +128,7 @@ export default function App() {
     if (isAutoSmash && mode === 'smash') {
       interval = setInterval(() => {
         triggerRandomSmash();
-      }, 600);
+      }, 1600);
     }
     return () => clearInterval(interval);
   }, [isAutoSmash, mode, triggerRandomSmash]);
