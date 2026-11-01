@@ -8,5 +8,5 @@
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <rect x="116" y="132" width="280" height="264" rx="56" fill="#0b1020" opacity=".3"/>
   <rect x="116" y="112" width="280" height="264" rx="56" fill="#fff"/>
-  <text x="256" y="312" text-anchor="middle" font-family="Fredoka, Nunito, 'Arial Rounded MT Bold', Arial, sans-serif" font-weight="700" font-size="200" fill="#4f46e5">A</text>
+  <path d="M196 314 256 170 316 314M218 262h76" fill="none" stroke="#4f46e5" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* Fonts are self-hosted (see main.tsx) so the installed app works offline. */
 @theme {
-  --font-sans: "Nunito", ui-rounded, ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif;
+  --font-sans: "Nunito Variable", ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fredoka Variable", "Nunito Variable", ui-rounded, system-ui, sans-serif;
 }
 
 /* Registered so the background hue can animate smoothly between letters. */

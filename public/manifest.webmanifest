@@ -1,1 +1,0 @@
-{ "name": "Keyboard Smasher", "short_name": "Smasher", "description": "A playful game for kids to learn letters by smashing the keyboard.", "start_url": ".", "display": "fullscreen", "orientation": "any", "background_color": "#070b16", "theme_color": "#070b16", "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }] }
