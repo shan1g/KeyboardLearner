@@ -1,20 +1,293 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Nunito", ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", ui-rounded, system-ui, sans-serif;
+}
+
+/* Registered so the background hue can animate smoothly between letters. */
+@property --hue {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 232;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
-  @apply font-sans antialiased overflow-hidden;
+  @apply font-sans antialiased;
+  margin: 0;
+  overflow: hidden;
+  background: #070b16;
+  color: #fff;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-/* Custom bounce for emojis */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+button {
+  cursor: pointer;
 }
 
-.floating {
-  animation: float 3s ease-in-out infinite;
+:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.app-bg {
+  background:
+    radial-gradient(70rem 50rem at 50% -15%, hsl(var(--hue) 75% 24% / 0.9), transparent 65%),
+    radial-gradient(50rem 40rem at 100% 110%, hsl(calc(var(--hue) + 70) 70% 18% / 0.8), transparent 60%),
+    radial-gradient(40rem 30rem at 0% 100%, hsl(calc(var(--hue) - 50) 70% 16% / 0.7), transparent 60%),
+    #070b16;
+  transition: --hue 900ms ease;
+}
+
+/* Colour emoji fonts render crisp vector glyphs at any size. */
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+  font-variant-emoji: emoji;
+  line-height: 1;
+}
+
+/* ---- Buttons ---- */
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 1rem;
+  font-weight: 800;
+  transition: transform 120ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.btn-primary {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+}
+
+.btn-primary:hover {
+  background: #fef3c7;
+}
+
+.btn-secondary {
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+}
+
+.btn-secondary:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* ---- Smash mode ---- */
+
+.smash-item {
+  animation: smash-life 2200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes smash-life {
+  0% {
+    transform: translateY(0) scale(0.2) rotate(calc(var(--r) * -3));
+    opacity: 0;
+  }
+  12% {
+    transform: translateY(0) scale(1.12) rotate(var(--r));
+    opacity: 1;
+  }
+  22% {
+    transform: translateY(0) scale(1) rotate(calc(var(--r) * 0.5));
+  }
+  72% {
+    transform: translateY(0) scale(1) rotate(calc(var(--r) * 0.5));
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px) scale(0.92) rotate(var(--r));
+    opacity: 0;
+  }
+}
+
+.smash-burst {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 9rem;
+  height: 9rem;
+  margin: -4.5rem 0 0 -4.5rem;
+  border-radius: 9999px;
+  border: 6px solid hsl(var(--h) 90% 65%);
+  animation: burst 650ms ease-out both;
+}
+
+@keyframes burst {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* ---- Learn mode ---- */
+
+.card-in {
+  animation: card-in 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes card-in {
+  from {
+    transform: scale(0.6) translateY(12px);
+    opacity: 0;
+  }
+}
+
+.kb-key {
+  display: grid;
+  place-items: center;
+  width: clamp(1.9rem, 8.4vw, 4rem);
+  height: clamp(2.6rem, 8.5vmin, 4rem);
+  border-radius: clamp(0.5rem, 1.4vw, 1rem);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1rem, 2.8vmin, 1.5rem);
+  color: rgb(255 255 255 / 0.85);
+  background: rgb(255 255 255 / 0.07);
+  box-shadow:
+    inset 0 -3px 0 rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(255 255 255 / 0.08);
+  transition: background-color 150ms ease, transform 80ms ease;
+  touch-action: manipulation;
+}
+
+.kb-key:active {
+  transform: translateY(2px);
+}
+
+.kb-target {
+  background: #fbbf24;
+  color: #1c1917;
+  box-shadow:
+    inset 0 -3px 0 rgb(0 0 0 / 0.25),
+    0 0 0 3px rgb(251 191 36 / 0.35),
+    0 0 28px rgb(251 191 36 / 0.55);
+  animation: key-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes key-pulse {
+  50% {
+    box-shadow:
+      inset 0 -3px 0 rgb(0 0 0 / 0.25),
+      0 0 0 6px rgb(251 191 36 / 0.2),
+      0 0 40px rgb(251 191 36 / 0.75);
+  }
+}
+
+.kb-ok {
+  animation: key-ok 550ms ease-out;
+}
+
+.kb-bad {
+  animation: key-bad 550ms ease-out;
+}
+
+@keyframes key-ok {
+  from {
+    background: #34d399;
+    color: #052e1c;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes key-bad {
+  from {
+    background: #fb7185;
+    color: #4c0519;
+  }
+}
+
+/* ---- General motion ---- */
+
+.floaty {
+  display: inline-block;
+  animation: floaty 3s ease-in-out infinite;
+}
+
+@keyframes floaty {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.fade-in {
+  animation: fade-in 250ms ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet-in {
+  animation: sheet-in 320ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .smash-item {
+    animation: fade-life 1800ms linear both;
+  }
+  .smash-burst,
+  .floaty,
+  .kb-target {
+    animation: none;
+  }
+  .card-in,
+  .sheet-in,
+  .fade-in,
+  .kb-ok,
+  .kb-bad {
+    animation-duration: 1ms;
+  }
+  .app-bg {
+    transition: none;
+  }
+}
+
+@keyframes fade-life {
+  0% {
+    opacity: 0;
+  }
+  10%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
