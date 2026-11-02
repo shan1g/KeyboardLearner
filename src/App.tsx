@@ -29,12 +29,16 @@ import {
 } from 'lucide-react';
 import { KEY_MAP, LETTERS, keyFromEvent, noteIndex, randomItem, type Pic } from './letters';
 import { sfx, unlockAudio } from './audio';
+import { preloadVoice, speak, stopVoice } from './voice';
+import { PRAISE, clips } from './voiceLines';
 
 type Mode = 'smash' | 'learn';
 type Screen = 'start' | 'play';
 
 interface Settings {
   sound: boolean;
+  /** Spoken prompts and praise, Learn mode only. */
+  voice: boolean;
   muted: boolean;
   order: 'random' | 'abc';
   hint: boolean;
@@ -63,7 +67,7 @@ interface Flash {
   id: number;
 }
 
-const DEFAULT_SETTINGS: Settings = { sound: true, muted: false, order: 'random', hint: true, auto: false };
+const DEFAULT_SETTINGS: Settings = { sound: true, voice: true, muted: false, order: 'random', hint: true, auto: false };
 const STORAGE_KEY = 'keyboard-smasher:settings';
 const MAX_ITEMS = 32;
 const HOLD_TO_UNLOCK_MS = 2000;
@@ -135,8 +139,11 @@ export default function App() {
   const busyRef = useRef(false);
   const nextTimerRef = useRef<number | undefined>(undefined);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  /** Bumped on mode switch / reset so a pending "next letter" from an old round is ignored. */
+  const roundRef = useRef(0);
 
   const soundOn = settings.sound && !settings.muted;
+  const voiceOn = settings.voice && !settings.muted;
 
   const update = useCallback((patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch })), []);
 
@@ -215,14 +222,31 @@ export default function App() {
             easing: 'cubic-bezier(.34,1.56,.64,1)',
           });
         }
-        nextTimerRef.current = window.setTimeout(() => {
-          busyRef.current = false;
-          newTarget(key);
-        }, 1100);
+        const round = ++roundRef.current;
+        const advance = (ms: number) => {
+          if (round !== roundRef.current) return; // mode switched or score reset meanwhile
+          nextTimerRef.current = window.setTimeout(() => {
+            busyRef.current = false;
+            newTarget(key);
+          }, ms);
+        };
+        if (voiceOn) {
+          // "Great job! Ay is for Apple!" after the chime, then move on once it has been said.
+          const praise = clips.praise(Math.floor(Math.random() * PRAISE.length));
+          void speak([praise, clips.isFor(key, target.pic.word)], { delay: soundOn ? 0.35 : 0 }).then((secs) =>
+            advance(clamp((secs ?? 0) * 1000 + 300, 1100, 4500)),
+          );
+        } else {
+          advance(1100);
+        }
       } else {
         setStreak(0);
         setFlash({ key, ok: false, id: uid() });
         if (soundOn) sfx.wrong();
+        // "That's bee. Find the letter ay." Skipped while already talking, so smashing stays calm.
+        if (voiceOn) {
+          void speak([clips.thats(key), clips.find(target.letter)], { ifIdle: true, delay: soundOn ? 0.3 : 0 });
+        }
         if (animate) {
           card?.animate(
             [
@@ -237,8 +261,26 @@ export default function App() {
         }
       }
     },
-    [target, streak, soundOn, newTarget],
+    [target, streak, soundOn, voiceOn, newTarget],
   );
+
+  // Learn mode voice: warm up the common clips, then ask for each new letter.
+  const learning = mode === 'learn' && screen === 'play';
+
+  useEffect(() => {
+    if (!learning || !voiceOn) return;
+    preloadVoice([...PRAISE.map((_, i) => clips.praise(i)), ...LETTERS.map((letter) => clips.thats(letter))]);
+  }, [learning, voiceOn]);
+
+  useEffect(() => {
+    if (!learning || !voiceOn) {
+      stopVoice();
+      return;
+    }
+    if (!target) return;
+    preloadVoice([clips.isFor(target.letter, target.pic.word)]);
+    void speak([clips.find(target.letter)]);
+  }, [learning, voiceOn, target]);
 
   // ---- Input routing ----
 
@@ -380,6 +422,9 @@ export default function App() {
     if (next === mode) return;
     window.clearTimeout(nextTimerRef.current);
     busyRef.current = false;
+    roundRef.current++;
+    stopVoice();
+    unlockAudio();
     setItems([]);
     setFlash(null);
     setMode(next);
@@ -401,6 +446,7 @@ export default function App() {
   const resetScore = () => {
     window.clearTimeout(nextTimerRef.current);
     busyRef.current = false;
+    roundRef.current++;
     setScore(0);
     setStreak(0);
     newTarget(settings.order === 'abc' ? undefined : target?.letter);
@@ -866,6 +912,12 @@ function SettingsSheet({
           description="Lights up the key to press"
           checked={settings.hint}
           onChange={(hint) => update({ hint })}
+        />
+        <Toggle
+          label="Voice"
+          description="Says the letter to find and cheers when it's right"
+          checked={settings.voice}
+          onChange={(voice) => update({ voice })}
         />
 
         <SectionTitle>Kid Lock</SectionTitle>

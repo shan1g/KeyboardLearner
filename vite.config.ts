@@ -36,7 +36,8 @@ export default defineConfig(({mode}) => {
         },
         workbox: {
           // Precache everything (app, fonts, icons) so it works fully offline after first visit.
-          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+          // Includes the Learn mode voice clips (public/voice/*.mp3, a few MB).
+          globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,mp3}'],
           cleanupOutdatedCaches: true,
         },
       }),

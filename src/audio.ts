@@ -26,6 +26,12 @@ export const unlockAudio = () => {
   getAudio();
 };
 
+/** Shared context and master output, so voice clips go through the same chain as the sound effects. */
+export function audioGraph(): { ctx: AudioContext; out: GainNode } | null {
+  const c = getAudio();
+  return c && out ? { ctx: c, out } : null;
+}
+
 interface ToneOptions {
   at?: number;
   dur?: number;

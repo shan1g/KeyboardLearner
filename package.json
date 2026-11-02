@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "voice": "tsx scripts/gen-voice.ts"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",
@@ -33,6 +34,7 @@
     "@types/node": "^22.14.0",
     "@vite-pwa/assets-generator": "^2.0.0",
     "autoprefixer": "^10.4.21",
+    "kokoro-js": "^1.2.1",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
