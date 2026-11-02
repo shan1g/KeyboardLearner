@@ -1,8 +1,25 @@
 // Plays the pre-rendered Kokoro clips in public/voice/ (see scripts/gen-voice.ts)
-// through the shared Web Audio output, so they behave like the sound effects.
+// on the shared AudioContext, through their own volume control.
 import { audioGraph } from './audio';
 
 const GAP_SECONDS = 0.06;
+/**
+ * Voice level, 0 to 1. The voice skips the sound-effects compressor (its makeup
+ * gain made speech loud), so this value is what you actually hear.
+ */
+const VOICE_VOLUME = 0.5;
+
+let bus: { ctx: AudioContext; gain: GainNode } | null = null;
+
+function voiceOut(ctx: AudioContext): GainNode {
+  if (!bus || bus.ctx !== ctx) {
+    const gain = ctx.createGain();
+    gain.gain.value = VOICE_VOLUME;
+    gain.connect(ctx.destination);
+    bus = { ctx, gain };
+  }
+  return bus.gain;
+}
 const cache = new Map<string, Promise<AudioBuffer | null>>();
 let active: AudioBufferSourceNode[] = [];
 let generation = 0;
@@ -65,13 +82,14 @@ export async function speak(ids: string[], { ifIdle = false, delay = 0 }: SpeakO
   const graph = audioGraph();
   if (run !== generation || !graph) return null;
 
-  const { ctx, out } = graph;
+  const { ctx } = graph;
+  const dest = voiceOut(ctx);
   let t = ctx.currentTime + 0.02 + delay;
   for (const buffer of buffers) {
     if (!buffer) continue;
     const src = ctx.createBufferSource();
     src.buffer = buffer;
-    src.connect(out);
+    src.connect(dest);
     src.onended = () => {
       active = active.filter((s) => s !== src);
       src.disconnect();
